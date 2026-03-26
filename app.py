@@ -4,9 +4,9 @@ import re
 import io
 import os
 
-st.set_page_config(page_title="Tách Lớp & Họ Tên", page_icon="📊", layout="centered")
+st.set_page_config(page_title="Tách Lớp & Họ Tên", page_icon="🎇", layout="centered")
 
-st.title("📊 Công cụ Tách Lớp & Họ Tên")
+st.title("👽 Công cụ Tách Lớp & Họ Tên")
 st.markdown("Upload file Excel có sheet **Data**, cột **Họ và tên** dạng `12A01-Phạm Vũ Trường An`")
 
 
