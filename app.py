@@ -89,6 +89,14 @@ def process_excel(file_bytes, filename):
         ws = writer.sheets[sheet_name]
         # Ẩn cột "Họ và tên" gốc (col_idx là 0-based, openpyxl dùng 1-based)
         ws.column_dimensions[get_column_letter(col_idx + 1)].hidden = True
+        # Tự động giãn độ rộng cột theo nội dung, tối đa 50 ký tự
+        for col_cells in ws.columns:
+            col_letter = get_column_letter(col_cells[0].column)
+            max_len = max(
+                (len(str(cell.value)) if cell.value is not None else 0)
+                for cell in col_cells
+            )
+            ws.column_dimensions[col_letter].width = min(max_len + 2, 50)
     output.seek(0)
 
     return output, out_name
@@ -123,9 +131,9 @@ if uploaded_file:
             )
 
 st.markdown("---")
-with st.expander("ℹ️ Hướng dẫn deploy lên Streamlit Cloud"):
-    st.markdown("""
-1. Tạo repo GitHub, push 2 file: `app.py` và `requirements.txt`
-2. Truy cập [share.streamlit.io](https://share.streamlit.io) → **New app**
-3. Chọn repo, branch `main`, main file: `app.py` → **Deploy!**
-    """)
+# with st.expander("ℹ️ Hướng dẫn deploy lên Streamlit Cloud"):
+#     st.markdown("""
+# 1. Tạo repo GitHub, push 2 file: `app.py` và `requirements.txt`
+# 2. Truy cập [share.streamlit.io](https://share.streamlit.io) → **New app**
+# 3. Chọn repo, branch `main`, main file: `app.py` → **Deploy!**
+#     """)
