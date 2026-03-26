@@ -3,6 +3,7 @@ import pandas as pd
 import re
 import io
 import os
+from openpyxl.utils import get_column_letter
 
 st.set_page_config(page_title="Tách Lớp & Họ Tên", page_icon="🎇", layout="centered")
 
@@ -76,8 +77,8 @@ def process_excel(file_bytes, filename):
     ho_ten_1 = wb_data[target_col].apply(extract_name)
     lop_1 = wb_data[target_col].apply(extract_class)
 
-    wb_data.insert(col_idx + 1, "Họ tên 1", ho_ten_1)
-    wb_data.insert(col_idx + 2, "Lớp 1", lop_1)
+    wb_data.insert(col_idx + 1, "Họ tên", ho_ten_1)
+    wb_data.insert(col_idx + 2, "Lớp", lop_1)
 
     base_name = os.path.splitext(filename)[0]
     out_name = f"{base_name}_đã tách lớp.xlsx"
@@ -85,6 +86,9 @@ def process_excel(file_bytes, filename):
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
         wb_data.to_excel(writer, sheet_name=sheet_name, index=False)
+        ws = writer.sheets[sheet_name]
+        # Ẩn cột "Họ và tên" gốc (col_idx là 0-based, openpyxl dùng 1-based)
+        ws.column_dimensions[get_column_letter(col_idx + 1)].hidden = True
     output.seek(0)
 
     return output, out_name
@@ -107,7 +111,7 @@ if uploaded_file:
             st.success(f"✅ Xử lý thành công! File output: **{out_name}**")
 
             # Show preview of new columns
-            cols_to_show = ["Họ và tên", "Họ tên 1", "Lớp 1"]
+            cols_to_show = ["Họ và tên", "Họ tên", "Lớp"]
             available = [c for c in cols_to_show if c in preview_df.columns]
             st.dataframe(preview_df[available].head(10), use_container_width=True)
 
