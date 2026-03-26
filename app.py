@@ -5,7 +5,7 @@ import io
 import os
 from openpyxl.utils import get_column_letter
 
-st.set_page_config(page_title="Tách Lớp & Họ Tên", page_icon="🎇", layout="centered")
+st.set_page_config(page_title="Tách Lớp & Họ Tên", page_icon="🐍", layout="centered")
 
 st.title("👽 Tách Lớp & Họ Tên")
 st.markdown("Upload file Excel có sheet **Data**, cột **Họ và tên** dạng `12A01-Phạm Vũ Trường An`")
@@ -77,8 +77,8 @@ def process_excel(file_bytes, filename):
     ho_ten_1 = wb_data[target_col].apply(extract_name)
     lop_1 = wb_data[target_col].apply(extract_class)
 
-    wb_data.insert(col_idx + 1, "Họ tên 1", ho_ten_1)
-    wb_data.insert(col_idx + 2, "Lớp 1", lop_1)
+    wb_data.insert(col_idx + 1, "Họ tên HS", ho_ten_1)
+    wb_data.insert(col_idx + 2, "Lớp CK", lop_1)
 
     base_name = os.path.splitext(filename)[0]
     out_name = f"{base_name}_đã tách lớp.xlsx"
@@ -119,7 +119,7 @@ if uploaded_file:
             st.success(f"✅ Xử lý thành công! File output: **{out_name}**")
 
             # Show preview of new columns
-            cols_to_show = ["Họ và tên", "Họ tên 1", "Lớp 1"]
+            cols_to_show = ["Họ và tên", "Họ tên HS", "Lớp CK"]
             available = [c for c in cols_to_show if c in preview_df.columns]
             st.dataframe(preview_df[available].head(10), use_container_width=True)
 
@@ -131,9 +131,9 @@ if uploaded_file:
             )
 
 st.markdown("---")
-# with st.expander("ℹ️ Hướng dẫn deploy lên Streamlit Cloud"):
-#     st.markdown("""
-# 1. Tạo repo GitHub, push 2 file: `app.py` và `requirements.txt`
-# 2. Truy cập [share.streamlit.io](https://share.streamlit.io) → **New app**
-# 3. Chọn repo, branch `main`, main file: `app.py` → **Deploy!**
-#     """)
+with st.expander("ℹ️ Hướng dẫn deploy lên Streamlit Cloud"):
+    st.markdown("""
+1. Tạo repo GitHub, push 2 file: `app.py` và `requirements.txt`
+2. Truy cập [share.streamlit.io](https://share.streamlit.io) → **New app**
+3. Chọn repo, branch `main`, main file: `app.py` → **Deploy!**
+    """)
