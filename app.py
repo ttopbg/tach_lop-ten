@@ -24,9 +24,28 @@ def remove_leading_zero(class_code):
     return class_code.strip()
 
 
+def find_sheet_name(file_bytes):
+    """Tìm sheet 'Data'/'data'/'DATA', nếu không có thì lấy sheet đầu tiên."""
+    import openpyxl
+    wb = openpyxl.load_workbook(io.BytesIO(file_bytes), read_only=True)
+    sheets = wb.sheetnames
+    wb.close()
+    for s in sheets:
+        if s.lower() == "data":
+            return s, None  # (tên sheet, thông báo)
+    # fallback: sheet đầu tiên
+    return sheets[0], f"⚠️ Không tìm thấy sheet 'Data' — đang dùng sheet đầu tiên: **{sheets[0]}**"
+
+
 def process_excel(file_bytes, filename):
+    raw = file_bytes if isinstance(file_bytes, bytes) else file_bytes.read()
+
+    sheet_name, warning = find_sheet_name(raw)
+    if warning:
+        st.warning(warning)
+
     try:
-        wb_data = pd.read_excel(file_bytes, sheet_name="Data", dtype=str)
+        wb_data = pd.read_excel(io.BytesIO(raw), sheet_name=sheet_name, dtype=str)
     except Exception as e:
         st.error(f"❌ Lỗi đọc file: {e}")
         return None, None
@@ -65,7 +84,7 @@ def process_excel(file_bytes, filename):
 
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
-        wb_data.to_excel(writer, sheet_name="Data", index=False)
+        wb_data.to_excel(writer, sheet_name=sheet_name, index=False)
     output.seek(0)
 
     return output, out_name
@@ -79,11 +98,11 @@ if uploaded_file:
 
     if st.button("⚙️ Xử lý", type="primary"):
         with st.spinner("Đang xử lý dữ liệu..."):
-            result, out_name = process_excel(uploaded_file, uploaded_file.name)
+            result, out_name = process_excel(uploaded_file.read(), uploaded_file.name)
 
         if result:
             # Preview
-            preview_df = pd.read_excel(result, sheet_name="Data", dtype=str)
+            preview_df = pd.read_excel(result, dtype=str)
             result.seek(0)
             st.success(f"✅ Xử lý thành công! File output: **{out_name}**")
 
