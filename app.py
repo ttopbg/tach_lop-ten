@@ -5,9 +5,9 @@ import io
 import os
 from openpyxl.utils import get_column_letter
 
-st.set_page_config(page_title="Tách Lớp & Họ Tên", page_icon="📊", layout="centered")
+st.set_page_config(page_title="Tách Lớp & Họ Tên--Thạch Bàn", page_icon="🐍", layout="centered")
 
-st.title("📊 Công cụ Tách Lớp & Họ Tên")
+st.title("👽 Tách Lớp & Họ Tên")
 st.markdown("Upload file Excel có sheet **Data**, cột **Họ và tên** dạng `12A01-Phạm Vũ Trường An`")
 
 
