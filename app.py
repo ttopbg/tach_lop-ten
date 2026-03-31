@@ -5,9 +5,9 @@ import io
 import os
 from openpyxl.utils import get_column_letter
 
-st.set_page_config(page_title="Tách Lớp & Họ Tên", page_icon="🐍", layout="centered")
+st.set_page_config(page_title="Tách Lớp & Họ Tên", page_icon="📊", layout="centered")
 
-st.title("👽 Tách Lớp & Họ Tên")
+st.title("📊 Công cụ Tách Lớp & Họ Tên")
 st.markdown("Upload file Excel có sheet **Data**, cột **Họ và tên** dạng `12A01-Phạm Vũ Trường An`")
 
 
@@ -49,15 +49,31 @@ def process_excel(file_bytes, filename):
         wb_data = pd.read_excel(io.BytesIO(raw), sheet_name=sheet_name, dtype=str)
     except Exception as e:
         st.error(f"❌ Lỗi đọc file: {e}")
-        return None, None
+        return None, None, None
 
-    # Tìm cột "Họ và tên"
-    col_map = {c.strip(): c for c in wb_data.columns}
-    target_col = col_map.get("Họ và tên")
+    # Tìm cột chứa họ tên - ưu tiên theo thứ tự khớp
+    KEYWORDS = ["họ và tên", "họ tên", "họ & tên", "tên"]
+
+    def find_name_col(columns):
+        # 1. Khớp chính xác (không phân biệt hoa thường, bỏ khoảng trắng thừa)
+        normalized = {c.strip().lower(): c for c in columns}
+        for kw in KEYWORDS:
+            if kw in normalized:
+                return normalized[kw]
+        # 2. Khớp một phần: cột nào chứa keyword
+        for kw in KEYWORDS:
+            for orig_col in columns:
+                if kw in orig_col.strip().lower():
+                    return orig_col
+        return None
+
+    target_col = find_name_col(wb_data.columns)
 
     if target_col is None:
-        st.error("❌ Không tìm thấy cột **'Họ và tên'** trong sheet Data!")
-        return None, None
+        st.error("❌ Không tìm thấy cột họ tên! Cột cần có tên chứa: **'Họ và tên'**, **'Họ tên'**, hoặc **'Tên'**")
+        return None, None, None
+
+    st.caption(f"🔍 Đang xử lý cột: **{target_col}**")
 
     col_idx = wb_data.columns.get_loc(target_col)
 
@@ -99,7 +115,7 @@ def process_excel(file_bytes, filename):
             ws.column_dimensions[col_letter].width = min(max_len + 2, 50)
     output.seek(0)
 
-    return output, out_name
+    return output, out_name, target_col
 
 
 # ── UI ──────────────────────────────────────────────────────────────────────
@@ -110,7 +126,7 @@ if uploaded_file:
 
     if st.button("⚙️ Xử lý", type="primary"):
         with st.spinner("Đang xử lý dữ liệu..."):
-            result, out_name = process_excel(uploaded_file.read(), uploaded_file.name)
+            result, out_name, target_col = process_excel(uploaded_file.read(), uploaded_file.name)
 
         if result:
             # Preview
@@ -119,7 +135,7 @@ if uploaded_file:
             st.success(f"✅ Xử lý thành công! File output: **{out_name}**")
 
             # Show preview of new columns
-            cols_to_show = ["Họ và tên", "Họ tên HS", "Lớp CK"]
+            cols_to_show = [target_col, "Họ tên HS", "Lớp CK"]
             available = [c for c in cols_to_show if c in preview_df.columns]
             st.dataframe(preview_df[available].head(10), use_container_width=True)
 
@@ -131,9 +147,9 @@ if uploaded_file:
             )
 
 st.markdown("---")
-# with st.expander("ℹ️ Hướng dẫn deploy lên Streamlit Cloud"):
-#     st.markdown("""
-# 1. Tạo repo GitHub, push 2 file: `app.py` và `requirements.txt`
-# 2. Truy cập [share.streamlit.io](https://share.streamlit.io) → **New app**
-# 3. Chọn repo, branch `main`, main file: `app.py` → **Deploy!**
-#     """)
+with st.expander("ℹ️ Hướng dẫn deploy lên Streamlit Cloud"):
+    st.markdown("""
+1. Tạo repo GitHub, push 2 file: `app.py` và `requirements.txt`
+2. Truy cập [share.streamlit.io](https://share.streamlit.io) → **New app**
+3. Chọn repo, branch `main`, main file: `app.py` → **Deploy!**
+    """)
