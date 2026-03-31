@@ -147,9 +147,9 @@ if uploaded_file:
             )
 
 st.markdown("---")
-with st.expander("ℹ️ Hướng dẫn deploy lên Streamlit Cloud"):
-    st.markdown("""
-1. Tạo repo GitHub, push 2 file: `app.py` và `requirements.txt`
-2. Truy cập [share.streamlit.io](https://share.streamlit.io) → **New app**
-3. Chọn repo, branch `main`, main file: `app.py` → **Deploy!**
-    """)
+# with st.expander("ℹ️ Hướng dẫn deploy lên Streamlit Cloud"):
+#     st.markdown("""
+# 1. Tạo repo GitHub, push 2 file: `app.py` và `requirements.txt`
+# 2. Truy cập [share.streamlit.io](https://share.streamlit.io) → **New app**
+# 3. Chọn repo, branch `main`, main file: `app.py` → **Deploy!**
+#     """)
